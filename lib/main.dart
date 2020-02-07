@@ -1,3 +1,4 @@
+import 'package:epense_tracker_app/widgets/chart.dart';
 import 'package:epense_tracker_app/widgets/new_transaction.dart';
 
 import './models/transaction.dart';
@@ -11,9 +12,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: "Expenses Tracker",
       theme: ThemeData(
-        primaryColor: Colors.green,
+        primarySwatch: Colors.brown,
         accentColor: Colors.green,
+        fontFamily: "Montserrat",
+        textTheme: TextTheme(
+            title: TextStyle(
+          fontFamily: "Montserrat",
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        )),
+        appBarTheme: AppBarTheme(
+          textTheme: TextTheme(
+            title: TextStyle(
+              fontFamily: "Lato",
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
       home: ExpensePage(),
     );
@@ -26,9 +44,9 @@ class ExpensePage extends StatefulWidget {
 }
 
 class _ExpensePageState extends State<ExpensePage> {
-  void _addNewTransaction(String txName, double txPrice) {
-    final newTx = Transaction(
-        itemName: txName, itemPrice: txPrice, itemDate: DateTime.now());
+  void _addNewTransaction(String txName, double txPrice, DateTime txDate) {
+    final newTx =
+        Transaction(itemName: txName, itemPrice: txPrice, itemDate: txDate);
     setState(() {
       _userTransactions.add(newTx);
     });
@@ -43,11 +61,17 @@ class _ExpensePageState extends State<ExpensePage> {
         });
   }
 
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
+      return tx.itemDate.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
+  }
+
   List<Transaction> _userTransactions = [
-    Transaction(
-        itemName: "Groceries", itemPrice: 12.50, itemDate: DateTime.now()),
-    Transaction(itemName: "Watch", itemPrice: 100.50, itemDate: DateTime.now()),
-    Transaction(itemName: "Jacket", itemPrice: 42.50, itemDate: DateTime.now()),
+//    Transaction(
+//        itemName: "Groceries", itemPrice: 12.50, itemDate: DateTime.now()),
+//    Transaction(itemName: "Watch", itemPrice: 100.50, itemDate: DateTime.now()),
+//    Transaction(itemName: "Jacket", itemPrice: 42.50, itemDate: DateTime.now()),
   ];
 
   @override
@@ -69,14 +93,7 @@ class _ExpensePageState extends State<ExpensePage> {
         scrollDirection: Axis.vertical,
         child: Column(
           children: <Widget>[
-            Container(
-              height: 50.0,
-              width: double.infinity,
-              child: Card(
-                child: Text("Expense Tracker Chart"),
-                elevation: 5.0,
-              ),
-            ),
+            Chart(_recentTransactions),
             TransactionList(_userTransactions),
           ],
         ),
